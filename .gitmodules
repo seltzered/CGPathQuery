@@ -1,0 +1,3 @@
+[submodule "Vendor/CAAnimationBlocks"]
+	path = Vendor/CAAnimationBlocks
+	url = https://github.com/xissburg/CAAnimationBlocks.git
