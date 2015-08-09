@@ -14,14 +14,17 @@ The classes should be considered experimental 'proof-of-concept' code at this ti
 CGPathQuery uses the following techniques/libraries: 
 
 - Nick Lockwood's "iOS Core Animation: Advanced Techniques" - Ch. 9 - Manual Animation, which mentions the technique of setting speed to zero to get values immediately.
-- CAAnimationBlocks, which is used in this library.
+- [CAAnimationBlocks](https://github.com/xissburg/CAAnimationBlocks), which is used in this library.
 - This advice on creating an opengl context - required in order to get a non-nil presentationLayer: https://stackoverflow.com/questions/3429925/carenderer-never-produces-output/3430544#3430544
 
 ####Alternatives
-- Creating a dashed line along a path and 
-- Using an external library like [Wykobi](http://www.wykobi.com/) (GPL/commercial) or [Claw](http://libclaw.sourceforge.net/index.html) (LGPL) to query a similarly-created path.
+CGPathQuery was made to avoid replicating math at the expense of being a slightly less 'functional' solution. There's some other alternatives:
+ 
+- Creating a dashed line along a path and iterating along path elements (see https://stackoverflow.com/questions/841111/how-can-i-get-all-points-in-cgpath-curve-or-quad-curve )
+- Using an external library like [Wykobi](http://www.wykobi.com/) (GPL/commercial) or [Claw](http://libclaw.sourceforge.net/index.html) (LGPL) or [other](http://www.cubic.org/docs/bezier.htm) bezier math to calculate/query a similarly-created path.
 
 
 ###TODO
-- Ideally I'd like to get rid of the pre-calculation step, but haven't yet found a way to retrieve animation values with core animation without either causing a deadlock on the main thread.
+- Add usage documentation. 
+- Make the pre-calculation step optional. So far I haven't yet found a way to retrieve animation values with core animation without causing a deadlock on the main thread.
 - Add rotation support. I've been able to grab the rotation angle in other demos from the presentationValue while layers are visible, but haven't been able to see it update in the current code.
