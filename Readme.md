@@ -22,7 +22,7 @@ CGPathQuery was made to avoid replicating math at the expense of being a slightl
  
 - Creating a dashed line along a path and iterating along path elements (see https://stackoverflow.com/questions/841111/how-can-i-get-all-points-in-cgpath-curve-or-quad-curve )
 - Using an external library like [Wykobi](http://www.wykobi.com/) (GPL/commercial) or [Claw](http://libclaw.sourceforge.net/index.html) (LGPL) or [other](http://www.cubic.org/docs/bezier.htm) bezier math to calculate/query a similarly-created path.
-
+- Possibly the bezierPointAtT method found in [performanceBezier](https://github.com/adamwulf/PerformanceBezier): https://github.com/adamwulf/PerformanceBezier/blob/master/PerformanceBezier/UIBezierPath%2BPerformance.m#L494-L522
 
 ###TODO
 - Add usage documentation. 
