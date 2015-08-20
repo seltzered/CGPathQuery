@@ -18,11 +18,12 @@ CGPathQuery uses the following techniques/libraries:
 - This advice on creating an opengl context - required in order to get a non-nil presentationLayer: https://stackoverflow.com/questions/3429925/carenderer-never-produces-output/3430544#3430544
 
 ####Alternatives
-CGPathQuery was made to avoid replicating math at the expense of being a slightly less 'functional' solution. There's some other alternatives:
+CGPathQuery was made to avoid replicating math at the expense of being a slightly less 'functional' solution. There's some other alternatives worth looking at:
  
 - Creating a dashed line along a path and iterating along path elements (see https://stackoverflow.com/questions/841111/how-can-i-get-all-points-in-cgpath-curve-or-quad-curve )
 - Using an external library like [Wykobi](http://www.wykobi.com/) (GPL/commercial) or [Claw](http://libclaw.sourceforge.net/index.html) (LGPL) or [other](http://www.cubic.org/docs/bezier.htm) bezier math to calculate/query a similarly-created path.
 - Possibly the bezierPointAtT method found in [performanceBezier](https://github.com/adamwulf/PerformanceBezier): https://github.com/adamwulf/PerformanceBezier/blob/master/PerformanceBezier/UIBezierPath%2BPerformance.m#L494-L522
+- Using SpriteKit's SKAction "followPath:asOffset:orientToPath:duration:" method.
 
 ###TODO
 - Add usage documentation. 
