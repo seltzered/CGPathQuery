@@ -99,6 +99,7 @@
         pointLayer = [CALayer layer];
         pointLayer.position = NSMakePoint(0.0, 0.0);
         pointLayer.bounds = CGRectMake(0, 0, 1, 1);
+        pointLayer.transform = CATransform3DIdentity;
         pointLayer.backgroundColor = CGColorCreateGenericRGB(1, 1, 0, 0);
         pointLayer.contents = [[CIImage alloc] init];
         [pointLayer setDrawsAsynchronously:YES];
@@ -120,6 +121,10 @@
             
             CGFloat x = ((CALayer *)pointLayer.presentationLayer).position.x;
             CGFloat y = ((CALayer *)pointLayer.presentationLayer).position.y;
+            NSValue * transformValue = [NSValue valueWithCATransform3D:((CALayer *)pointLayer.presentationLayer).transform];
+            CGFloat angle = atan2([transformValue CATransform3DValue].m12, [transformValue CATransform3DValue].m11);
+            NSLog(@"transform value: %@", transformValue);
+            NSLog(@"angle (from transform): %f", angle);
             
             [self.queryData setObject:[NSValue valueWithPoint:NSMakePoint(x, y)] atIndexedSubscript:i];
             
@@ -213,7 +218,9 @@
     
     [CATransaction begin];
     backingLayer = [CALayer layer];
+    backingLayer.position = NSMakePoint(0.0, 0.0);
     backingLayer.bounds = CGRectMake(0, 0, 1, 1);
+    backingLayer.transform = CATransform3DIdentity;
     backingLayer.backgroundColor = CGColorCreateGenericRGB(1, 1, 0, 0);
     [backingLayer setDrawsAsynchronously:YES];
     
