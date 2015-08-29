@@ -7,7 +7,7 @@ It works by using core animation itself to pre-calculate values along a given ra
 The classes should be considered experimental 'proof-of-concept' code at this time. 
 
 ####What CGPathQuery isn't for  
-- Animating layers along a path. Core animation already does a great job of doing this by setting  an animation.path property and an appropriate speed.
+- Animating layers along a path. Core animation already does a great job of doing this by setting  an animation.path property and an appropriate speed. This said, CGPathQuery could help if you're trying to animate the layer along a small partial segment of a path.
 
 
 ####References
@@ -24,6 +24,10 @@ CGPathQuery was made to avoid replicating math at the expense of being a slightl
 - Using an external library like [Wykobi](http://www.wykobi.com/) (GPL/commercial) or [Claw](http://libclaw.sourceforge.net/index.html) (LGPL) or [other](http://www.cubic.org/docs/bezier.htm) bezier math to calculate/query a similarly-created path.
 - Possibly the bezierPointAtT method found in [performanceBezier](https://github.com/adamwulf/PerformanceBezier): https://github.com/adamwulf/PerformanceBezier/blob/master/PerformanceBezier/UIBezierPath%2BPerformance.m#L494-L522
 - Using SpriteKit's SKAction "followPath:asOffset:orientToPath:duration:" method.
+
+
+####Warnings
+- CGPathQuery, at this time of writing, appears to work best for very simple paths - paths where the segments are equal in overall length. Be careful when using more complex paths - (e.g. from personal observation CGPathQuery can yield unexpected results when drawing long paths with ended with smaller rounded corners - where querying indicates 'bunching up' around the corners)
 
 ###TODO
 - Add usage documentation. 
