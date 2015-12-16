@@ -126,7 +126,7 @@
             [pointLayer removeFromSuperlayer];
             pointLayer = nil;
             
-            NSLog(@"x: %f y: %f completePos = %f cnt = %ld finished: %d ", x, y, completionPosition, finishCount, finished ? 1: 0);
+//            NSLog(@"x: %f y: %f completePos = %f cnt = %ld finished: %d ", x, y, completionPosition, finishCount, finished ? 1: 0);
 
             finishCount++;
             if(finishCount >= capacity)
