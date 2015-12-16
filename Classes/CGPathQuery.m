@@ -101,7 +101,7 @@
         pointLayer.bounds = CGRectMake(0, 0, 1, 1);
         pointLayer.transform = CATransform3DIdentity;
         pointLayer.backgroundColor = CGColorCreateGenericRGB(1, 1, 0, 0);
-        pointLayer.contents = [[CIImage alloc] init];
+//        pointLayer.contents = [[CIImage alloc] init];
         [pointLayer setDrawsAsynchronously:YES];
         
         [backingLayer addSublayer:pointLayer];
