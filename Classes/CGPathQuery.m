@@ -38,6 +38,91 @@
     return self;
 }
 
+
+- (NSError *) calculatePointsAndWaitAlongPath:(CGPathRef)path
+                       completionStart:(CGFloat)zeroToOneCompletionStart
+                         completionEnd:(CGFloat)zeroToOneCompletionEnd
+                       completionDelta:(CGFloat)delta
+{
+    //
+    // Calculated points and wait for the calculations to complete.
+    // This will run until a timeout and number of retries has been performed.
+    // The timeout/retries are used due to observations where the calculations will pause
+    // indefinately.
+    //
+    // Root cause for this paus issue hasn't been found yet - it occurs intermittently and
+    // doesn't seem like a deadlock issue despite appearing like one.
+    //
+    
+    NSError * error;
+    
+    NSUInteger calculationTimeoutInSeconds = 10;
+    NSUInteger maxRetries = 3;
+    
+    NSUInteger retriesPerformed = 0;
+    bool calculationsCompleted = false;
+    bool calculationsIncompleteAfterRetries = false;
+    
+    while(!calculationsCompleted ||
+           calculationsIncompleteAfterRetries)
+    {
+        
+        if(self.pathCalculationState == PathCalculationProcessing)
+        {
+            // teardown/refresh if we were processing
+            [self teardownOpenGL];
+            self.pathCalculationState = PathCalculationInit;
+        }
+        
+        error = [self calculatePointsAlongPath:path
+                                         completionStart:zeroToOneCompletionStart
+                                           completionEnd:zeroToOneCompletionEnd
+                                         completionDelta:delta];
+
+        //wait until we're done. perform check only if:
+        // - not on the main thread to avoid deadlock
+        // - no error resulted from the calculation call
+        if( [[NSThread currentThread] isMainThread])
+            calculationsCompleted = true; //calculations assumed complete
+        
+        if( (![[NSThread currentThread] isMainThread]) &&
+           ((error == nil) || (error.code == 0)) )
+        {
+            NSUInteger secCount = 0;
+            while( (self.pathCalculationState != PathCalculationDone) &&
+                    (secCount < calculationTimeoutInSeconds) )
+            {
+                sleep(1);
+                secCount++;
+            }
+            
+            if(secCount > calculationTimeoutInSeconds)
+            {
+                if(retriesPerformed > maxRetries)
+                {
+                    calculationsIncompleteAfterRetries = true;
+                }
+                NSLog(@"ERROR: path calculations incomplete, retrying");
+                retriesPerformed++;
+            }
+            else
+            {
+                calculationsCompleted = true;
+            }
+        }
+    }
+    
+    if(calculationsIncompleteAfterRetries)
+    {
+        //add error information.
+        NSLog(@"ERROR: calculations incomplete after %ld retries", maxRetries);
+        NSString * errorDomain = [[NSString alloc] initWithFormat:@"%@", [self class]];
+        error = [[NSError alloc] initWithDomain:errorDomain code:-1 userInfo:nil];
+    }
+    
+    return error;
+}
+
 - (NSError *) calculatePointsAlongPath:(CGPathRef)path
       completionStart:(CGFloat)zeroToOneCompletionStart
                   completionEnd:(CGFloat)zeroToOneCompletionEnd

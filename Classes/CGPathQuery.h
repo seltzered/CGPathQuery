@@ -10,6 +10,11 @@
 
 @interface CGPathQuery : NSObject
 
+- (NSError *) calculatePointsAndWaitAlongPath:(CGPathRef)path
+                              completionStart:(CGFloat)zeroToOneCompletionStart
+                                completionEnd:(CGFloat)zeroToOneCompletionEnd
+                              completionDelta:(CGFloat)delta;
+
 - (NSError *) calculatePointsAlongPath:(CGPathRef)path
                        completionStart:(CGFloat)zeroToOneCompletionStart
                          completionEnd:(CGFloat)zeroToOneCompletionEnd
