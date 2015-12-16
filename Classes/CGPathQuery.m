@@ -215,7 +215,7 @@
     backingLayer = [CALayer layer];
     backingLayer.bounds = CGRectMake(0, 0, 1, 1);
     backingLayer.backgroundColor = CGColorCreateGenericRGB(1, 1, 0, 0);
-    [backingLayer setDrawsAsynchronously:YES];
+    [backingLayer setDrawsAsynchronously:NO];
     
     renderer.layer = backingLayer;
     renderer.bounds = backingLayer.bounds;
