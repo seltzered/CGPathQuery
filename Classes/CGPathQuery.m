@@ -226,7 +226,8 @@
 
 - (void) teardownOpenGL
 {
-    [backingLayer removeFromSuperlayer];
+    if(backingLayer != nil)
+        [backingLayer removeFromSuperlayer];
     backingLayer = nil;
     oglContext = nil;
     renderer = nil;
