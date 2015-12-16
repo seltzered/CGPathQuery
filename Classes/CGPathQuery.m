@@ -11,6 +11,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import <AppKit/NSOpenGL.h>
 
+#define radiansToDegress(x) (x * 57.2957795)
+
 @interface CGPathQuery ()
 {
     NSOpenGLContext * oglContext;
@@ -96,9 +98,9 @@
         CAKeyframeAnimation *animation;
 
         CGFloat completionPosition = zeroToOneCompletionStart + (delta * i);
-        pointLayer = [CALayer layer];
-        pointLayer.position = NSMakePoint(0.0, 0.0);
-        pointLayer.bounds = CGRectMake(0, 0, 1, 1);
+        pointLayer = [CAShapeLayer layer];
+        pointLayer.position = NSMakePoint(1.0, 1.0);
+        pointLayer.bounds = CGRectMake(0, 0, 2, 1);
         pointLayer.transform = CATransform3DIdentity;
         pointLayer.backgroundColor = CGColorCreateGenericRGB(1, 1, 0, 0);
 //        pointLayer.contents = [[CIImage alloc] init];
@@ -121,6 +123,12 @@
             
             CGFloat x = ((CALayer *)pointLayer.presentationLayer).position.x;
             CGFloat y = ((CALayer *)pointLayer.presentationLayer).position.y;
+            
+            CALayer* copy = [pointLayer presentationLayer];
+            float rotation = [(NSNumber *)[copy valueForKeyPath:@"transform.rotation.z"] floatValue];
+            NSLog(@"transform rotation: %f", radiansToDegress(rotation) );
+            
+            
             NSValue * transformValue = [NSValue valueWithCATransform3D:((CALayer *)pointLayer.presentationLayer).transform];
             CGFloat angle = atan2([transformValue CATransform3DValue].m12, [transformValue CATransform3DValue].m11);
             NSLog(@"transform value: %@", transformValue);
