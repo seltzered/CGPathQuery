@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class CGPathQueryData;
+
 @interface CGPathQuery : NSObject
 
 - (NSError *) calculatePointsAndWaitAlongPath:(CGPathRef)path
@@ -19,6 +21,8 @@
                        completionStart:(CGFloat)zeroToOneCompletionStart
                          completionEnd:(CGFloat)zeroToOneCompletionEnd
                        completionDelta:(CGFloat)delta;
+
+- (void) loadCachedPointValues:(CGPathQueryData *)cgPathQueryData;
 
 - (NSValue *) pointAlongPathAtCompletion:(CGFloat)zeroToOneCompletion
                                    error:(NSError *)error;

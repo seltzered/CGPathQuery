@@ -7,6 +7,8 @@
 //
 
 #import "CGPathQuery.h"
+#import "CGPathQuery+Protected.h"
+#import "CGPathQueryData.h"
 #import "CAAnimation+Blocks.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AppKit/NSOpenGL.h>
@@ -18,11 +20,7 @@
     CALayer * backingLayer;
 }
 
-@property (strong, nonatomic) NSMutableArray * queryData;
 @property (assign, nonatomic) PathCalculationStateEnum pathCalculationState;
-@property (assign, nonatomic) CGFloat delta;
-@property (assign, nonatomic) CGFloat zeroToOneCompletionStart;
-@property (assign, nonatomic) CGFloat zeroToOneCompletionEnd;
 
 @end
 
@@ -50,7 +48,7 @@
     // The timeout/retries are used due to observations where the calculations will pause
     // indefinately.
     //
-    // Root cause for this paus issue hasn't been found yet - it occurs intermittently and
+    // Root cause for this pause issue hasn't been found yet - it occurs intermittently and
     // doesn't seem like a deadlock issue despite appearing like one.
     //
     
@@ -163,15 +161,17 @@
     [self prepareOpenGL];
 
     self.pathCalculationState = PathCalculationProcessing;
-    self.zeroToOneCompletionStart = zeroToOneCompletionStart;
-    self.zeroToOneCompletionEnd = zeroToOneCompletionEnd;
-    self.delta = delta;
+    
+    self.cgPathQueryData = [[CGPathQueryData alloc] init];
+    self.cgPathQueryData.zeroToOneCompletionStart = zeroToOneCompletionStart;
+    self.cgPathQueryData.zeroToOneCompletionEnd = zeroToOneCompletionEnd;
+    self.cgPathQueryData.delta = delta;
     
     NSUInteger capacity = ((NSUInteger) ((zeroToOneCompletionEnd - zeroToOneCompletionStart) / delta)) + 1;
-    self.queryData = nil;
-    self.queryData = [[NSMutableArray alloc] initWithCapacity:capacity];//initWithObjects:[NSValue valueWithPoint:NSMakePoint(0.0, 0.0)] count:capacity];
+    self.cgPathQueryData.queryData = nil;
+    self.cgPathQueryData.queryData = [[NSMutableArray alloc] initWithCapacity:capacity];//initWithObjects:[NSValue valueWithPoint:NSMakePoint(0.0, 0.0)] count:capacity];
     for(NSUInteger i = 0; i < capacity; i++)
-        [self.queryData setObject:[NSValue valueWithPoint:NSMakePoint(0.0, 0.0)] atIndexedSubscript:i];
+        [self.cgPathQueryData.queryData setObject:[NSValue valueWithPoint:NSMakePoint(0.0, 0.0)] atIndexedSubscript:i];
     
     __block NSUInteger finishCount = 1;
     
@@ -206,7 +206,7 @@
             CGFloat x = ((CALayer *)pointLayer.presentationLayer).position.x;
             CGFloat y = ((CALayer *)pointLayer.presentationLayer).position.y;
             
-            [self.queryData setObject:[NSValue valueWithPoint:NSMakePoint(x, y)] atIndexedSubscript:i];
+            [self.cgPathQueryData.queryData setObject:[NSValue valueWithPoint:NSMakePoint(x, y)] atIndexedSubscript:i];
             
             [pointLayer removeFromSuperlayer];
             pointLayer = nil;
@@ -218,6 +218,7 @@
             {
                 self.pathCalculationState = PathCalculationDone;
                 [self teardownOpenGL];
+                //TODO: add notification of completion via delegate method
             }
         }];
         
@@ -248,14 +249,14 @@
         NSError * error = [[NSError alloc] initWithDomain:errorDomain code:-1 userInfo:nil];
         return nil;
     }
-    if(zeroToOneCompletion < self.zeroToOneCompletionStart)
+    if(zeroToOneCompletion < self.cgPathQueryData.zeroToOneCompletionStart)
     {
         NSLog(@"completion value less than start value");
 
         NSError * error = [[NSError alloc] initWithDomain:errorDomain code:-1 userInfo:nil];
         return nil;
     }
-    if(zeroToOneCompletion > self.zeroToOneCompletionEnd)
+    if(zeroToOneCompletion > self.cgPathQueryData.zeroToOneCompletionEnd)
     {
         NSLog(@"completion value greater than end value");
         
@@ -263,20 +264,20 @@
         return nil;
     }
     
-    NSUInteger startIndex = (NSUInteger) ((zeroToOneCompletion - self.zeroToOneCompletionStart) / self.delta);
+    NSUInteger startIndex = (NSUInteger) ((zeroToOneCompletion - self.cgPathQueryData.zeroToOneCompletionStart) / self.cgPathQueryData.delta);
     
     NSUInteger endIndex = startIndex + 1;
-    if(endIndex >= [self.queryData count])
+    if(endIndex >= [self.cgPathQueryData.queryData count])
     {
         //just return the final value.
-        return self.queryData[startIndex];
+        return self.cgPathQueryData.queryData[startIndex];
     }
     
-    NSPoint startIndexPointPosition = [self.queryData[startIndex] pointValue];
-    NSPoint endIndexPointPosition = [self.queryData[endIndex] pointValue];
+    NSPoint startIndexPointPosition = [self.cgPathQueryData.queryData[startIndex] pointValue];
+    NSPoint endIndexPointPosition = [self.cgPathQueryData.queryData[endIndex] pointValue];
 
-    CGFloat startIndexCalcPt = self.zeroToOneCompletionStart + (startIndex * self.delta);
-    CGFloat startIndexBias = 1.0 - ((zeroToOneCompletion - startIndexCalcPt) / self.delta);
+    CGFloat startIndexCalcPt = self.cgPathQueryData.zeroToOneCompletionStart + (startIndex * self.cgPathQueryData.delta);
+    CGFloat startIndexBias = 1.0 - ((zeroToOneCompletion - startIndexCalcPt) / self.cgPathQueryData.delta);
     
     CGFloat averagedX = (startIndexPointPosition.x * startIndexBias) + (endIndexPointPosition.x * (1.0 - startIndexBias));
     CGFloat averagedY = (startIndexPointPosition.y * startIndexBias) + (endIndexPointPosition.y * (1.0 - startIndexBias));
@@ -308,6 +309,15 @@
     [CATransaction commit];
 }
 
+- (void) loadCachedPointValues:(CGPathQueryData *)cgPathQueryData
+{
+    //
+    //TODO: make sure we're not processing right now
+    
+    //reset query data
+    self.cgPathQueryData = cgPathQueryData;
+    self.pathCalculationState = PathCalculationDone;
+}
 
 - (void) teardownOpenGL
 {
