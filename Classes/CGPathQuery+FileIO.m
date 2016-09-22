@@ -89,7 +89,7 @@
     
     if(path == nil)
     {
-        NSLog(@"[%@] Error - toolPrefsPListPath is nil", [self class]);
+        NSLog(@"[%@] Error - pathQueryPlistPath is nil", [self class]);
         return nil;
     }
     
